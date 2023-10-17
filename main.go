@@ -1,21 +1,26 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
-    "lora-dash/controllers"
+	"github.com/dev-ansh-r/lora-dash/controllers"
+	"github.com/dev-ansh-r/lora-dash/models"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-    r := gin.Default()
+	r := gin.Default()
 
-    // Serve static files
-    r.Static("/static", "./static")
+	// Serve static files
+	r.Static("/static", "./static")
+	// Load HTML templates
+	r.LoadHTMLGlob("templates/*.html")
 
-    // Load HTML templates
-    r.LoadHTMLGlob("templates/*.html")
+	// Setup the database and get the db connection
+	db := models.SetupDB()
+	defer db.Close() // Close the database connection when the application exits
 
-    // Define your routes and controllers
-    controllers.SetupRoutes(r)
+	// Pass the db connection to your controllers
+	controllers.SetupRoutes(r, db)
 
-    r.Run(":8080")
+	r.Run(":8080")
 }
